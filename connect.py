@@ -10,17 +10,54 @@ def create_board():  # This is the create board function
     return board
 
 
-def drop_piece():
-    pass
+def drop_piece(board, row, col, piece):
+    board[row][col] = piece
 
 
 def is_valid_location(board, col):
     # Return true if the uppermost row is equal to zero (its free)
-    return board[5][col] == 0
+    return board[ROW_COUNT-1][col] == 0
 
 
 def get_next_open_row(board, col):
-    for r in range(ROW_COUNT)
+    for r in range(ROW_COUNT):
+        if board[r][col] == 0:
+            return r  # Returns first instance row is empty
+
+
+def print_board(board):
+    # Flip the board over so the pieces drop down instead of starting at the top
+    print(np.flip(board, 0))
+
+
+def winning_move(board, piece):
+    # Check horizontal locations for win
+    for c in range(COLUMN_COUNT - 3):  # Loop over all columns
+        # Loop over all possible starting positions for horizontal wins
+        for r in range(ROW_COUNT):
+            if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
+                return True  # This checks if there is 3 pieces in a row after the winning spot piece
+
+    # Check vertical locations for win
+    for c in range(ROW_COUNT - 3):  # Loop over all columns
+        # Loop over all possible starting positions for vertical wins
+        for r in range(ROW_COUNT):
+            if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
+                return True  # This checks if there is 3 pieces in a row after the winning spot piece
+
+    # Check for positive slope diagonals
+    for c in range(COLUMN_COUNT - 3):  # Loop over all columns
+        # Loop over all possible starting positions for horizontal wins
+        for r in range(ROW_COUNT-3):
+            if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
+                return True  # This checks if there is 3 pieces in a row after the winning spot piece
+
+    # Check for negative slope diagonals
+    for c in range(COLUMN_COUNT - 3):  # Loop over all columns
+        # Loop over all possible starting positions for horizontal wins
+        for r in range(3, ROW_COUNT):
+            if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
+                return True  # This checks if there is 3 pieces in a row after the winning spot piece
 
 
 board = create_board()  # Creates the board
@@ -32,11 +69,23 @@ while not game_over:
     # Ask for player 1 input
     if turn == 0:
         col = int(input("Player 1 Make your Selection (0-6): "))
+        if is_valid_location(board, col):
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, 1)
+
+            if winning_move(board, 1):
+                print("Player 1 Wins!")
+                game_over = True
+            print_board(board)
         turn += 1
 
     # Ask for player 2 input
     else:
         col = int(input("Player 2 Make your Selection (0-6): "))
+        if is_valid_location(board, col):
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, 2)
+        print_board(board)
         turn += 1
         turn = turn % 2
         # I would have subtracted 1 instead of doing modular
